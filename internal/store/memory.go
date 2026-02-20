@@ -1,6 +1,7 @@
 package store
 
 import (
+	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -55,11 +56,18 @@ func (s *MemoryStore) Delete(key string) {
 	delete(s.data, key)
 }
 
-func (p PainEntry) Validate() error {
-    switch p.Location {
-    case Back, Neck, Shoulder, Knee, Ankle:
-        return nil
-    default:
-        return fmt.Errorf("invalid location: %s", p.Location)
+func (p PainEntry) ValidateLocation() error {
+	switch p.Location {
+		case Back, Neck, Shoulder, Knee, Ankle:
+			return nil
+		default:
+			return fmt.Errorf("invalid location: %s", p.Location)
     }
+}
+
+func (p PainEntry) ValidateLevel() error {
+	if p.Level < 0 || p.Level > 10 {
+		return errors.New("invalid level")
+	}
+	return nil
 }
