@@ -9,10 +9,10 @@ import (
 )
 
 type Handler struct {
-	store *store.MemoryStore
+	store store.PainStore
 }
 
-func NewHandler(s *store.MemoryStore) *Handler {
+func NewHandler(s store.PainStore) *Handler {
 	return &Handler{store: s}
 }
 
@@ -29,9 +29,9 @@ func (h *Handler) HealthCheck(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) HandlePain(w http.ResponseWriter, r *http.Request) {
     switch r.Method {
     case http.MethodGet:
-        h.GetPain(w, r)  // we'll implement next
+        h.GetPain(w, r)
     case http.MethodPost:
-        h.CreatePain(w, r)  // we'll implement next
+        h.CreatePain(w, r)
     default:
         http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
     }

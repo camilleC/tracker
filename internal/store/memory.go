@@ -25,6 +25,11 @@ type PainEntry struct {
     Notes     string    `json:"notes"`     // optional
 }
 
+type PainStore interface {
+	Get(key string) (PainEntry, bool)
+	Set(key string, value PainEntry)
+	Delete(key string)
+}
 
 type MemoryStore struct {
 	mu   sync.RWMutex
