@@ -29,6 +29,7 @@ type PainStore interface {
 	Get(key string) (PainEntry, bool)
 	Set(key string, value PainEntry)
 	Delete(key string)
+	List() []PainEntry
 }
 
 type MemoryStore struct {
@@ -61,18 +62,31 @@ func (s *MemoryStore) Delete(key string) {
 	delete(s.data, key)
 }
 
-func (p PainEntry) ValidateLocation() error {
-	switch p.Location {
-		case Back, Neck, Shoulder, Knee, Ankle:
-			return nil
-		default:
-			return fmt.Errorf("invalid location: %s", p.Location)
-    }
+func (s *MemoryStore) List() []PainEntry {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	entries := make([]PainEntry, 0, len(s.data))
+	for _, v := range s.data {
+		entries = append(entries, v)
+	}
+	return entries
 }
 
-func (p PainEntry) ValidateLevel() error {
+func (p PainEntry) Validate() error {
 	if p.Level < 0 || p.Level > 10 {
-		return errors.New("invalid level")
+		return errors.New("level must be 0-10")
 	}
+
+	switch p.Location {
+	case Back, Neck, Shoulder, Knee, Ankle:
+		// valid
+	default:
+		return fmt.Errorf("invalid location: %s", p.Location)
+	}
+
+	if p.Timestamp.After(time.Now()) {
+		return errors.New("timestamp cannot be in the future")
+	}
+
 	return nil
 }
